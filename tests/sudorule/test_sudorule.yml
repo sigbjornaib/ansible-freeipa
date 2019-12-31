@@ -22,6 +22,13 @@
           - /usr/bin/vim
       state: present
 
+  - name: Ensure sudocmdgroup is available
+    ipasudocmdgroup:
+      ipaadmin_password: pass1234
+      name: test_sudorule
+      sudocmd: /usr/bin/vim
+      state: present
+
   - name: Ensure sudorules are absent
     ipasudorule:
       ipaadmin_password: pass1234
@@ -116,25 +123,65 @@
     register: result
     failed_when: result.changed
 
-  - name: Ensure sudorule is present and some sudocmd are a member of it.
+  - name: Ensure sudorule is present and some sudocmd are allowed.
     ipasudorule:
       ipaadmin_password: pass1234
       name: testrule1
-      cmd:
+      allow_sudocmd:
       - /sbin/ifconfig
+      action: member
+    register: result
+    failed_when: not result.changed
+
+  - name: Ensure sudorule is present and some sudocmd are allowed, again.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      allow_sudocmd:
+      - /sbin/ifconfig
+      action: member
+    register: result
+    failed_when: result.changed
+
+  - name: Ensure sudorule is present and some sudocmd are denyed.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      deny_sudocmd:
       - /usr/bin/vim
       action: member
     register: result
     failed_when: not result.changed
 
-  - name: Ensure sudorule is present and some sudocmd are a member of it, again.
+  - name: Ensure sudorule is present and some sudocmd are denyed, again.
     ipasudorule:
       ipaadmin_password: pass1234
       name: testrule1
-      cmd:
-      - /sbin/ifconfig
+      deny_sudocmd:
       - /usr/bin/vim
       action: member
+    register: result
+    failed_when: result.changed
+
+  - name: Ensure sudorule is present and, sudocmds are absent.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      allow_sudocmd: /sbin/ifconfig
+      deny_sudocmd: /usr/bin/vim
+      action: member
+      state: absent
+    register: result
+    failed_when: not result.changed
+
+  - name: Ensure sudorule is present and, sudocmds are absent, again.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      allow_sudocmd: /sbin/ifconfig
+      deny_sudocmd: /usr/bin/vim
+      action: member
+      state: absent
     register: result
     failed_when: result.changed
 
@@ -190,25 +237,77 @@
     register: result
     failed_when: result.changed
 
-  - name: Ensure sudorule sudocmds are absent
+  - name: Ensure sudorule is present, with an allow_sudocmdgroup.
     ipasudorule:
       ipaadmin_password: pass1234
       name: testrule1
-      cmd:
-      - /sbin/ifconfig
-      - /usr/bin/vim
+      allow_sudocmdgroup: test_sudorule
+      state: present
+    register: result
+    failed_when: not result.changed
+
+  - name: Ensure sudorule is present, with an allow_sudocmdgroup, again.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      allow_sudocmdgroup: test_sudorule
+      state: present
+    register: result
+    failed_when: result.changed
+
+  - name: Ensure sudorule is present, but allow_sudocmdgroup is absent.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      allow_sudocmdgroup: test_sudorule
       action: member
       state: absent
     register: result
     failed_when: not result.changed
 
-  - name: Ensure sudorule sudocmds are absent, again
+  - name: Ensure sudorule is present, but allow_sudocmdgroup is absent.
     ipasudorule:
       ipaadmin_password: pass1234
       name: testrule1
-      cmd:
-      - /sbin/ifconfig
-      - /usr/bin/vim
+      allow_sudocmdgroup: test_sudorule
+      action: member
+      state: absent
+    register: result
+    failed_when: result.changed
+
+  - name: Ensure sudorule is present, with an deny_sudocmdgroup.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      deny_sudocmdgroup: test_sudorule
+      state: present
+    register: result
+    failed_when: not result.changed
+
+  - name: Ensure sudorule is present, with an deny_sudocmdgroup, again.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      deny_sudocmdgroup: test_sudorule
+      state: present
+    register: result
+    failed_when: result.changed
+
+  - name: Ensure sudorule is present, but deny_sudocmdgroup is absent.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      deny_sudocmdgroup: test_sudorule
+      action: member
+      state: absent
+    register: result
+    failed_when: not result.changed
+
+  - name: Ensure sudorule is present, but deny_sudocmdgroup is absent, again.
+    ipasudorule:
+      ipaadmin_password: pass1234
+      name: testrule1
+      deny_sudocmdgroup: test_sudorule
       action: member
       state: absent
     register: result
@@ -277,3 +376,26 @@
       state: absent
     register: result
     failed_when: result.changed
+
+  # cleanup
+  - name : Ensure sudocmdgroup is absent
+    ipasudocmdgroup:
+      ipaadmin_password: pass1234
+      name: test_sudorule
+      state: absent
+
+  - name: Ensure hostgroup is absent.
+    ipahostgroup:
+      ipaadmin_password: MyPassword123
+      name: cluster
+      host:
+      - "{{ groups.ipaserver[0] }}"
+      state: absent
+
+  - name: Ensure sudocmds are absent
+    ipasudocmd:
+      ipaadmin_password: pass1234
+      name:
+      - /sbin/ifconfig
+      - /usr/bin/vim
+      state: absent
