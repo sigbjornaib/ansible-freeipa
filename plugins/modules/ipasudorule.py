@@ -425,7 +425,7 @@ def main():
                         res_find.get('memberallowcmd_sudocmdgroup', []))
 
                     deny_cmd_add, deny_cmd_del = gen_add_del_lists(
-                        allow_sudocmd,
+                        deny_sudocmd,
                         res_find.get('memberdenycmd_sudocmd', []))
 
                     deny_cmdgroup_add, deny_cmdgroup_del = gen_add_del_lists(
