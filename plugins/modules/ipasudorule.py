@@ -79,12 +79,20 @@ options:
     description: Host category the sudo rule applies to.
     required: false
     choices: ["all"]
-  cmd:
-    description: List of sudocmds assigned to this sudorule.
+  allow_sudocmd:
+    description: List of allowed sudocmds assigned to this sudorule.
     required: false
     type: list
-  cmdgroup:
-    description: List of sudocmd groups assigned to this sudorule.
+  allow_sudocmdgroup:
+    description: List of allowed sudocmd groups assigned to this sudorule.
+    required: false
+    type: list
+  deny_sudocmd:
+    description: List of denied sudocmds assigned to this sudorule.
+    required: false
+    type: list
+  deny_sudocmdgroup:
+    description: List of denied sudocmd groups assigned to this sudorule.
     required: false
     type: list
   cmdcategory:
@@ -128,13 +136,13 @@ EXAMPLES = """
 
 # Ensure sudocmd is present in Sudo Rule
 - ipasudorule:
-  ipaadmin_password: pass1234
-  name: testrule1
-  cmd:
-  - /sbin/ifconfig
-  - /usr/bin/vim
-  action: member
-  state: absent
+    ipaadmin_password: pass1234
+    name: testrule1
+    allow_sudocmd:
+      - /sbin/ifconfig
+      - /usr/bin/vim
+    action: member
+    state: absent
 
 # Ensure host server is present in Sudo Rule
 - ipasudorule:
